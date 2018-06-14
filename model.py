@@ -16,7 +16,7 @@ CROP_SIZE = 112
 CHANNELS = 3
 BATCH_SIZE = 3
 
-
+#c3d without finetune
 def c3d(inputs, num_class, training):
     """
     C3D network for video classification
@@ -61,7 +61,7 @@ def c3d(inputs, num_class, training):
 
 
 
-
+#c3d with finetune
 def c3d_ucf101_finetune(inputs, training, weights=None):
     """
     C3D network for ucf101 dataset fine-tuned from weights pretrained on Sports1M
@@ -75,6 +75,7 @@ def c3d_ucf101_finetune(inputs, training, weights=None):
     net = tf.layers.conv3d(inputs=inputs, filters=64, kernel_size=3, padding='SAME', activation=tf.nn.relu,
                            kernel_initializer=tf.constant_initializer(weights[0]),
                            bias_initializer=tf.constant_initializer(weights[1]),name="conv3d1")
+    #tf.summary is for writing logs
     tf.summary.histogram("conv3d1-weight1",weights[0])
     tf.summary.histogram("conv3d1-weight2", weights[1])
     net = tf.layers.max_pooling3d(inputs=net, pool_size=(1, 2, 2), strides=(1, 2, 2), padding='SAME',name="maxpooling1")
@@ -120,7 +121,7 @@ def c3d_ucf101_finetune(inputs, training, weights=None):
     tf.summary.histogram("conv3d8-weight1",weights[14])
     tf.summary.histogram("conv3d8-weight2", weights[15])
     net = tf.layers.max_pooling3d(inputs=net, pool_size=2, strides=2, padding='SAME',name="maxpooling5")
-
+    #flatten layers before fc layer
     net = tf.layers.flatten(net,name="flatten1")
     net = tf.layers.dense(inputs=net, units=4096, activation=tf.nn.relu,
                           kernel_initializer=tf.constant_initializer(weights[16]),
@@ -133,7 +134,7 @@ def c3d_ucf101_finetune(inputs, training, weights=None):
                           bias_initializer=tf.constant_initializer(weights[19]),name="dense2")
     net = tf.identity(net, name='fc2')
     net = tf.layers.dropout(inputs=net, rate=0.5, training=training,name="dropout2")
-
+    #choose from 7 postures
     net = tf.layers.dense(inputs=net, units=7, activation=tf.nn.softmax,
                           kernel_initializer=tf.random_normal_initializer(mean=0.0, stddev=0.001),
                           bias_initializer=tf.zeros_initializer(),name="dense3")
@@ -146,7 +147,7 @@ def c3d_ucf101_finetune(inputs, training, weights=None):
 def read_train(tr_file):
     path, frm, cls = tr_file.split(' ')
     start = np.random.randint(int(frm) - FRAMES)
-
+    #frame path
     frame_dir = 'E:/proroot/dataset/traindata/hmdb/'
 
     v_paths = [frame_dir + path +'/'+ '%d.jpg' % (f + 1) for f in range(start, start + FRAMES)]
@@ -166,9 +167,11 @@ def read_train(tr_file):
 
 def demo_finetune():
     # Demo of training on UCF101
+    #trainlist path and some opt
     with open('E:/proroot/dataset/test/train_list.txt', 'r') as f:
         lines = f.read().split('\n')
     tr_files = [line for line in lines if len(line) > 0]
+    #read weights from mat
     with tf.name_scope('input_weight'):
      weights = sio.loadmat('E:/proroot/dataset/pretrain/c3d_ucf101_tf.mat', squeeze_me=True)['weights']
 
@@ -183,9 +186,10 @@ def demo_finetune():
 
     logits = c3d_ucf101_finetune(inputs=inputs, training=training,weights=weights)
     with tf.name_scope("input_lable"):
+        #the second param should the same as the last dense layer of model
      labels = tf.one_hot(y_input,7, name='labels')
 
-    # Some operations
+    # name scrope
     with tf.name_scope("accuracy"):
      correct_opt = tf.equal(tf.argmax(logits, 1), y_input, name='correct')
      acc_opt = tf.reduce_mean(tf.cast(correct_opt, tf.float32), name='accuracy')
@@ -209,7 +213,7 @@ def demo_finetune():
        # 将训练日志写入到logs文件夹下
         n_train = len(tr_files)
         for epoch in range(3):
-            merged = tf.summary.merge_all()  # 将图形、训练过程等数据合并在一起
+            merged = tf.summary.merge_all()  # logs -将图形、训练过程等数据合并在一起
             writer = tf.summary.FileWriter("log", tf.get_default_graph())
             tr_files = shuffle(tr_files)
             batch_x = np.zeros(shape=(BATCH_SIZE, FRAMES, CROP_SIZE, CROP_SIZE, CHANNELS), dtype=np.float32)
@@ -225,6 +229,7 @@ def demo_finetune():
 
                 if (idx + 1) % BATCH_SIZE == 0 or (idx + 1) == n_train:
                     feeds = {x_input: batch_x[:bidx], y_input: batch_y[:bidx], training: True}
+                    #sess.run give you the result of merged,train_opt, loss, acc_opt
                     summ,_, lss, acc = sess.run([merged,train_opt, loss, acc_opt], feed_dict=feeds)
                     writer.add_summary(summ,idx)
                    # writer = tf.summary.FileWriter('logs', sess.graph)

@@ -19,7 +19,7 @@ BATCH_SIZE = 3
 
 
 
-
+#the same as model.py
 
 def c3d_simpler(inputs, training):
     """

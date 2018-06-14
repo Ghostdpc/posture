@@ -22,7 +22,7 @@ def clipread(paths, offsets, size=(128, 171), crop_size=(112, 112), mode='RGB', 
     y = 1
     for file_name in paths:
         # Read video frame
-
+# prevent from empty jpg files
         try:
          im = imread(file_name, mode=mode)
          y+=1
@@ -50,6 +50,7 @@ def clipread(paths, offsets, size=(128, 171), crop_size=(112, 112), mode='RGB', 
     return np.expand_dims(clips, axis=3)
 
 
+#randcrop for avoid noise
 def randcrop(scales, size=(128, 171)):
     """
     Generate random offset for crop window
@@ -69,7 +70,7 @@ def randcrop(scales, size=(128, 171)):
 
     return off_h, off_h + scale, off_w, off_w + scale
 
-
+#different crop opt but not use
 def centercrop(scale, size=(128, 171)):
     """
     Generate center offset for crop window
@@ -84,7 +85,7 @@ def centercrop(scale, size=(128, 171)):
 
     return off_h, off_h + scale, off_w, off_w + scale
 
-
+#just test whether it can work
 def _demo_read_clip():
     """
    read video frames and return ararry of cropped frames

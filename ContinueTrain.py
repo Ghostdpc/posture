@@ -10,6 +10,7 @@ FRAMES = 16
 CROP_SIZE = 112
 CHANNELS = 3
 BATCH_SIZE = 3
+#reading trainning list
 with open('E:/proroot/dataset/test/train_list.txt', 'r') as f:
     lines = f.read().split('\n')
 tr_files = [line for line in lines if len(line) > 0]
@@ -29,13 +30,13 @@ logits = othermodel.c3d_simpler(inputs=inputs, training=training)
 with tf.name_scope("input_lable"):
     labels = tf.one_hot(y_input, 7, name='labels')
 
-# Some operations
+# accurary opt
 with tf.name_scope("accuracy"):
     correct_opt = tf.equal(tf.argmax(logits, 1), y_input, name='correct')
     acc_opt = tf.reduce_mean(tf.cast(correct_opt, tf.float32), name='accuracy')
     tf.summary.scalar("accurary", acc_opt)
 # Define training opt
-with tf.name_scope('loss'):  # 损失
+with tf.name_scope('loss'):  # log-损失
     loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits), name='loss')
     tf.summary.scalar("loss", loss)
 # Learning rate
@@ -44,7 +45,7 @@ with tf.name_scope('learnrate'):
     learning_rate = tf.train.exponential_decay(learning_rate=0.001, global_step=global_step, decay_steps=1000,
                                                decay_rate=0.96, staircase=True)
     tf.summary.scalar("learnrate", learning_rate)
-with tf.name_scope('train'):  # 训练过程
+with tf.name_scope('train'):  # log-训练过程
     train_opt = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss)
 saver=tf.train.Saver()
 with tf.Session() as sess:

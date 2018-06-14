@@ -57,7 +57,7 @@ def c3d(inputs, training):
 
 
 
-
+#new model the same as model
 def read_train(tr_file):
     path, frm, cls = tr_file.split(' ')
     start = np.random.randint(int(frm) - FRAMES)

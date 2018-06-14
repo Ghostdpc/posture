@@ -1,3 +1,4 @@
+#all path define here
 datafilepath="E:/proroot/dataset/datafile"
 datalistpath="E:/proroot/dataset/datalist/datalist-hmdb.txt"
 dataclasspath=""

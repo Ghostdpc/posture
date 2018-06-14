@@ -3,6 +3,7 @@ import cv2
 import  config
 import os
 listread=config.datalistpath
+#divide video into 70 frames
 def framecreate():
   with open(listread,"rb") as fr:
       datalist=fr.read()
@@ -12,6 +13,7 @@ def framecreate():
   for root, child, files in os.walk(config.datafilepath+"/hmdb/"):
 
           for each in files:
+              #create folder for frames
            if not os.path.exists(config.traindatapath+each[0:-4]):
                  os.mkdir(config.traindatapath+each[0:-4])
            cap = cv2.VideoCapture(config.datafilepath+"/hmdb/"+each)
@@ -19,6 +21,7 @@ def framecreate():
            count = 1
            dirlist.append(config.traindatapath+each[0:-4])
            sucess=True
+              #read frames from video
            while (sucess):
                sucess, frame = cap.read()
                if sucess==False:
@@ -29,10 +32,12 @@ def framecreate():
                count = count + 1
 
            cap.release()
+          #add noise or change light of the video frames
   changelight(dirlist, filename)
   addnoise(dirlist,filename)
 
 def trainlistcreate():
+    #create list  of train  filename-numofframes-cls  example: zhengchang0 70 6
     with open("E:/proroot/dataset/test/train_list.txt", "r+") as fr:
         path=config.traindatapath
         for root, child, files in os.walk(path):

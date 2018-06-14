@@ -2,9 +2,9 @@ import os
 import cv2
 path="E:/test/"
 path2="E:/data2/"
-
+#divide video into clips
 for root, child, files in os.walk(path):
-
+    #all files with be divided into 2s
     for each in files:
         if not os.path.exists(path2 + each[0:-4]):
             os.mkdir(path2 + each[0:-4])
