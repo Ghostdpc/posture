@@ -21,7 +21,7 @@ def c3d(inputs, training):
     """t
 
     """
-
+    abc=1111
     net = tf.layers.conv3d(inputs=inputs, filters=64, kernel_size=3, padding='SAME', activation=tf.nn.relu)
     net = tf.layers.max_pooling3d(inputs=net, pool_size=(1, 2, 2), strides=(1, 2, 2), padding='SAME')
 

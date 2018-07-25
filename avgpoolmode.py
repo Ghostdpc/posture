@@ -8,7 +8,7 @@ import os
 import config
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
+#sdasdasdasd
 HEIGHT = 128
 WIDTH = 171
 FRAMES = 16
